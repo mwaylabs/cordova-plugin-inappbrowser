@@ -1,0 +1,27 @@
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+  xmlns:rim="http://www.blackberry.com/ns/widgets"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  id="com.mwaysolutions.cordova.webviewplugin"
+  version="0.1.0">
+  <name>Webview</name>
+  <description>Cordova Webview Plugin</description>
+  <license></license>
+  <keywords>cordova, webview</keywords>
+  <repo>git@git.mwaysolutions.com:systeminfo-ios/cordova-webview-plugin.git</repo>
+
+  <js-module src="www/webview-plugin.js" name="webviewplugin">
+      <clobbers target="webview" />
+  </js-module>
+
+    <!-- ios -->
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+        <feature name="WebViewPlugin">
+          <param name="ios-package" value="WebViewPlugin"/>
+        </feature>
+    </config-file>
+
+    <header-file src="src/ios/WebViewPlugin.h" />
+    <source-file src="src/ios/WebViewPlugin.m" />
+  </platform>
+</plugin>

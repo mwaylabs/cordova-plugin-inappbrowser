@@ -1,0 +1,9 @@
+.DS_Store
+
+**/xcuserdata/
+xcshareddata/
+coverage/
+
+# sublime project files
+*.sublime-project
+*.sublime-workspace
