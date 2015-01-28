@@ -12,9 +12,9 @@ This plugin adds a customizable in app browser to your cordova application.
 ```
 
 ## Installation
-
+```
   $ cordova plugin add https://github.com/mwaylabs/cordova-plugin-inappbrowser.git
-
+```
 ## Options
 - All parameters are required
 
