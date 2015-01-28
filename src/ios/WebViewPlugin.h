@@ -1,13 +1,16 @@
 //
-//  CordovaPushPlugin.h
-//  PushLibrary
+//  WebViewPlugin.h
+//  Cordova WebView Plugin
 //
-//  Created by Marcus Koehler on 27.01.14.
-//  Copyright (c) 2014 M-Way Solutions GmbH. All rights reserved.
+//  Created by Marcus Koehler on 27.10.14.
+//
 //
 
 #import <Cordova/CDVPlugin.h>
 
 @interface WebViewPlugin : CDVPlugin
-- (void)openDocument:(CDVInvokedUrlCommand*)command;
+{
+    NSString *callbackId;
+}
+- (void)openWebView:(CDVInvokedUrlCommand*)command;
 @end

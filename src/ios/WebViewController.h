@@ -1,8 +1,9 @@
 //
-//  DocumentViewController.h
-//  mobileCRM
+//  WebViewController.h
+//  Cordova WebView Plugin
 //
-//  Created by Marcus Koehler on 12.02.14.
+//  Created by Marcus Koehler on 27.10.14.
+//
 //
 //
 
@@ -12,10 +13,13 @@
 {
     UIWebView *webView;
     UIActivityIndicatorView *ai;
-    NSString *url;
-    NSString *mimeType;
+    NSDictionary *options;
+    
+    UIButton *forwardButton;
+    UIButton *backButton;
+    UIButton *refreshButton;
 }
 
-- (id)initWithUrl: (NSString*) _url name: (NSString*) name mimeType: (NSString*) _mimeType;
+- (id)initWithOptions: (NSDictionary*) _options;
 
 @end

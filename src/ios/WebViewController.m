@@ -1,46 +1,31 @@
 //
-//  PDFViewController.m
-//  SEW
+//  WebViewController.m
+//  Cordova WebView Plugin
 //
-//  Created by Marcus Koehler on 12.02.14.
+//  Created by Marcus Koehler on 27.10.14.
 //
 //
 
 #import "WebViewController.h"
+
+#define RGBCOLOR(rgbValue) [UIColor \
+colorWithRed:	((float)((rgbValue & 0x00FF0000) >> 16))/0xFF \
+green:			((float)((rgbValue & 0x0000FF00) >>  8))/0xFF \
+blue:			((float)((rgbValue & 0x000000FF) >>  0))/0xFF \
+alpha:			1.0 \
+]
 
 @interface WebViewController (private) <UIWebViewDelegate>
 @end
 
 @implementation WebViewController
 
-- (id)initWithUrl: (NSString*) _url name: (NSString*) name mimeType: (NSString*) _mimeType
+- (id)initWithOptions: (NSDictionary*) _options
 {
     if ((self = [super init]) != nil)
     {
-        url = _url;
-        mimeType = _mimeType;
-
-        self.title = name !=nil ? name : [url lastPathComponent];
-
-        UIView *navigationBar = [[UIView alloc] initWithFrame:CGRectMake(0,[[[UIDevice currentDevice] systemVersion] floatValue] >= 7 ? 20 : 0, self.view.frame.size.width, 44)];
-        navigationBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        navigationBar.backgroundColor = RGBCOLOR(0x2f2f2f);
-        navigationBar.tintColor = [UIColor redColor];
-        [self.view addSubview:navigationBar];
-
-        UILabel *navTitleLabel= [[UILabel alloc] initWithFrame:CGRectMake(100, 0,navigationBar.frame.size.width-200, navigationBar.frame.size.height)];
-        navTitleLabel.textColor = RGBCOLOR(0xFFFFFF);
-        navTitleLabel.backgroundColor = [UIColor clearColor];
-        navTitleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        navTitleLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:18];
-        navTitleLabel.textAlignment = NSTextAlignmentCenter;
-        navTitleLabel.text = name !=nil ? name : [url lastPathComponent];
-        [navigationBar addSubview:navTitleLabel];
-
-        UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(20,12,10,20)];
-        [backButton setBackgroundImage:[UIImage imageNamed:@"ic_title_back@2x.png"] forState:UIControlStateNormal];
-        [backButton addTarget:self action:@selector(onClose) forControlEvents:UIControlEventTouchUpInside];
-        [navigationBar addSubview:backButton];
+        options = _options;
+        self.edgesForExtendedLayout = UIRectEdgeNone;
     }
     return self;
 }
@@ -49,11 +34,54 @@
 {
     [super loadView];
 
-    self.view.backgroundColor = RGBCOLOR(0x2f2f2f);
+    UIColor *bgColor = [self colorWithRGBHexString:[options objectForKey:@"backgroundColor"]];
+    UIColor *iconColor = [self colorWithRGBHexString:[options objectForKey:@"iconColor"]];
 
-    int yOffset = [[[UIDevice currentDevice] systemVersion] floatValue] >= 7 ? 20 : 0;
+    bool isPDF = [[options objectForKey:@"isPDF"] boolValue];
 
-    webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, yOffset +44, self.view.frame.size.width, self.view.frame.size.height-44-yOffset)];
+    self.view.backgroundColor = [UIColor blackColor];
+
+    UIView * bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height-44, self.view.frame.size.width, 44)];
+    bottomView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+    bottomView.backgroundColor = bgColor;
+    [self.view addSubview:bottomView];
+
+    UIButton *closeButton = [[UIButton alloc] initWithFrame:CGRectMake(10, (bottomView.frame.size.height-40)/2, 40, 40)];
+    [closeButton addTarget:self action:@selector(onClose) forControlEvents:UIControlEventTouchUpInside];
+    [closeButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_close.png"]]forState:UIControlStateNormal];
+    closeButton.tintColor = iconColor;
+    closeButton.backgroundColor = [UIColor clearColor];
+    [bottomView addSubview:closeButton];
+
+    if (!isPDF)
+    {
+        UIView *middleView = [[UIView alloc] initWithFrame:CGRectMake((bottomView.frame.size.width - 100)/2, 0, 100, bottomView.frame.size.height)];
+        middleView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        middleView.backgroundColor = [UIColor clearColor];
+        [bottomView addSubview:middleView];
+
+        backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (middleView.frame.size.height-40)/2, 40, 40)];
+        [backButton addTarget:self action:@selector(onBack) forControlEvents:UIControlEventTouchUpInside];
+        [backButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_back.png"]]forState:UIControlStateNormal];
+        backButton.enabled = NO;
+        [middleView addSubview: backButton];
+
+
+        forwardButton = [[UIButton alloc] initWithFrame:CGRectMake(60, (middleView.frame.size.height-40)/2, 40, 40)];
+        [forwardButton addTarget:self action:@selector(onForward) forControlEvents:UIControlEventTouchUpInside];
+        forwardButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
+        [forwardButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_forward.png"]]forState:UIControlStateNormal];
+        forwardButton.enabled = NO;
+        [middleView addSubview: forwardButton];
+
+        refreshButton = [[UIButton alloc] initWithFrame:CGRectMake(bottomView.frame.size.width-50, (bottomView.frame.size.height-40)/2, 40, 40)];
+        [refreshButton addTarget:self action:@selector(onRefresh) forControlEvents:UIControlEventTouchUpInside];
+        [refreshButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_refresh.png"]]forState:UIControlStateNormal];
+        [bottomView addSubview:refreshButton];
+    }
+
+
+    webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - bottomView.frame.size.height)];
     webView.autoresizesSubviews = true;
     webView.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     webView.scalesPageToFit = true;
@@ -70,31 +98,26 @@
 - (void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
-
-    if (mimeType == nil)
-        [webView loadRequest:request];
-    else
-    {
-        [ai startAnimating];
-
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue currentQueue] completionHandler:
-
-         ^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-             [webView loadData:data MIMEType:mimeType textEncodingName:@"UTF-8" baseURL:nil];
-             [ai stopAnimating];
-         }];
-    }
+    [UIApplication sharedApplication].statusBarHidden = true;
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[options objectForKey:@"url"]]]];
 }
 
-- (void) onClose
+- (void) viewWillDisappear:(BOOL)animated
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [super viewWillDisappear:animated];
+    [UIApplication sharedApplication].statusBarHidden = false;
 }
 
 #pragma mark -
 #pragma mark Webview Delegate
+
+- (bool) webView:(UIWebView *)_webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    forwardButton.enabled = _webView.canGoForward;
+    backButton.enabled = _webView.canGoBack;
+
+    return true;
+}
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
@@ -109,6 +132,75 @@
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     [ai stopAnimating];
+}
+
+#pragma mark -
+
+- (void) onClose
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void) onRefresh
+{
+    [webView reload];
+}
+
+- (void) onForward
+{
+    if (webView.canGoForward)
+        [webView goForward];
+}
+
+- (void) onBack
+{
+    if (webView.canGoBack)
+        [webView goBack];
+}
+
+#pragma mark -
+#pragma mark Helper
+
+- (UIColor*)colorWithRGBHexString:(NSString *)stringToConvert
+{
+    unsigned hexNum;
+
+    if ([stringToConvert hasPrefix:@"#"])
+        stringToConvert = [stringToConvert stringByReplacingOccurrencesOfString:@"#" withString:@"0x"];
+
+    NSScanner *scanner = [NSScanner scannerWithString:stringToConvert];
+    if (![scanner scanHexInt:&hexNum]) return nil;
+    return [self colorWithRGBHex:hexNum];
+}
+
+- (UIColor*)colorWithRGBHex:(UInt32)hex
+{
+    int r = (hex >> 16) & 0xFF;
+    int g = (hex >> 8) & 0xFF;
+    int b = (hex) & 0xFF;
+
+    return [UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:1.0];
+}
+
+- (UIImage*)tintedImageWithColor:(UIColor*)tintColor image: (UIImage*) image
+{
+    CGSize imgSize = image.size;
+    CGRect imgRect = CGRectMake(0, 0, imgSize.width, imgSize.height);
+    UIGraphicsBeginImageContextWithOptions(imgSize, false, image.scale);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+
+    // draw alpha-mask
+    [image drawInRect:imgRect blendMode:kCGBlendModeNormal alpha:1.0];
+
+    // draw tint color, preserving alpha values of original image
+    CGContextSetBlendMode(context, kCGBlendModeSourceIn);
+    [tintColor setFill];
+    CGContextFillRect(context, imgRect);
+
+    UIImage* tintedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return tintedImage;
 }
 
 @end
