@@ -32,6 +32,7 @@ This plugin adds a customizable in app browser to your cordova application.
 
 ### Supported Platforms
 - iOS 7+
+- Android 4.4+
 
 ### License
 Code licensed under MIT. Docs under Apache 2. PhoneGap is a trademark of Adobe.
