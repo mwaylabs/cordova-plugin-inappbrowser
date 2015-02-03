@@ -2,7 +2,7 @@
   xmlns:rim="http://www.blackberry.com/ns/widgets"
   xmlns:android="http://schemas.android.com/apk/res/android"
   id="com.mwaysolutions.cordova.webviewplugin"
-  version="0.1.0">
+  version="0.1.1">
   <name>Webview</name>
   <description>Cordova Webview Plugin</description>
   <license></license>
@@ -13,7 +13,35 @@
       <clobbers target="webview" />
   </js-module>
 
-    <!-- ios -->
+  <!-- android -->
+  <platform name="android">
+    <config-file target="config.xml" parent="/*">
+      <feature name="WebViewPlugin">
+        <param name="android-package" value="com.mwaysolutions.cordova.webviewplugin.WebViewPlugin"/>
+      </feature>
+    </config-file>
+
+    <source-file src="src/android/WebViewPlugin.java" target-dir="src/com/mwaysolutions/cordova/webviewplugin"/>
+    <source-file src="src/android/InAppBrowserDialog.java" target-dir="src/com/mwaysolutions/cordova/webviewplugin" />
+    <source-file src="src/android/InAppChromeClient.java" target-dir="src/com/mwaysolutions/cordova/webviewplugin" />
+
+    <!--  drawable src/android/resources -->
+    <resource-file src="src/android/res/drawable-hdpi/ic_action_next_item.png" target="res/drawable-hdpi/ic_action_next_item.png" />
+    <resource-file src="src/android/res/drawable-mdpi/ic_action_next_item.png" target="res/drawable-mdpi/ic_action_next_item.png" />
+    <resource-file src="src/android/res/drawable-xhdpi/ic_action_next_item.png" target="res/drawable-xhdpi/ic_action_next_item.png" />
+    <resource-file src="src/android/res/drawable-xxhdpi/ic_action_next_item.png" target="res/drawable-xxhdpi/ic_action_next_item.png" />
+
+    <resource-file src="src/android/res/drawable-hdpi/ic_action_previous_item.png" target="res/drawable-hdpi/ic_action_previous_item.png" />
+    <resource-file src="src/android/res/drawable-mdpi/ic_action_previous_item.png" target="res/drawable-mdpi/ic_action_previous_item.png" />
+    <resource-file src="src/android/res/drawable-xhdpi/ic_action_previous_item.png" target="res/drawable-xhdpi/ic_action_previous_item.png" />
+    <resource-file src="src/android/res/drawable-xxhdpi/ic_action_previous_item.png" target="res/drawable-xxhdpi/ic_action_previous_item.png" />
+
+    <resource-file src="src/android/res/drawable-hdpi/ic_action_refresh.png" target="res/drawable-hdpi/ic_action_refresh.png" />
+    <resource-file src="src/android/res/drawable-mdpi/ic_action_refresh.png" target="res/drawable-mdpi/ic_action_refresh.png" />
+    <resource-file src="src/android/res/drawable-xhdpi/ic_action_refresh.png" target="res/drawable-xhdpi/ic_action_refresh.png" />
+    <resource-file src="src/android/res/drawable-xxhdpi/ic_action_refresh.png" target="res/drawable-xxhdpi/ic_action_refresh.png" />
+  </platform>
+  <!-- ios -->
   <platform name="ios">
     <config-file target="config.xml" parent="/*">
         <feature name="WebViewPlugin">

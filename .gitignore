@@ -3,7 +3,7 @@
 **/xcuserdata/
 xcshareddata/
 coverage/
-
+.idea
 # sublime project files
 *.sublime-project
 *.sublime-workspace

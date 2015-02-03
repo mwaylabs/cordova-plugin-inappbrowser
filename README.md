@@ -3,12 +3,19 @@
 This plugin adds a customizable in app browser to your cordova application.
 
 ```
-  webview.openWebView(null, null, {
-    iconColor: '#FFFFFF',
-    backgroundColor: '#000000',
-    isPDF: false,
-    url: 'http://mwaysolutions.com'
-  });
+ $window.webview.openWebView(success, failure, {
+      iconColor: ' #ffff00',
+      backgroundColor: '#f00000',
+      isPDF: false,
+      url: 'http://mwaysolutions.com',
+      visibleAddress: false,
+      editableAddress: false,
+      icons:{
+        backward: true,
+        forward: true,
+        refresh: true
+      }
+    });
 ```
 
 ## Installation
