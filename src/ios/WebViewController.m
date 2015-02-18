@@ -95,6 +95,10 @@ alpha:			1.0 \
     [webView addSubview:ai];
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
 - (void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
