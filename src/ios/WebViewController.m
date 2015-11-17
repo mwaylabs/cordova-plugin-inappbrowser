@@ -103,7 +103,8 @@ alpha:			1.0 \
 {
     [super viewWillAppear:animated];
     [UIApplication sharedApplication].statusBarHidden = true;
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[options objectForKey:@"url"]]]];
+    NSString *urlString = [[options objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
