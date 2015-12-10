@@ -103,8 +103,16 @@ alpha:			1.0 \
 {
     [super viewWillAppear:animated];
     [UIApplication sharedApplication].statusBarHidden = true;
-    NSString *urlString = [[options objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
+    NSString *urlString = [options objectForKey:@"url"];
+	
+	if ([options objectForKey:@"urlEncoding"] != nil)
+	{
+		bool encodeURL = [[options objectForKey:@"urlEncoding"] boolValue];
+		if (encodeURL)
+			urlString = [[options objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	}
+	
+	[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
