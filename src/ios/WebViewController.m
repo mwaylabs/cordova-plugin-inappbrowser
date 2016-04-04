@@ -46,19 +46,19 @@ alpha:			1.0 \
     bottomView.backgroundColor = bgColor;
     [self.view addSubview:bottomView];
 
+    bool navigationAtTop = false;
+    if ([options objectForKey:@"navigationAtTop"] != nil)
+        navigationAtTop = [[options objectForKey:@"navigationAtTop"] boolValue];
+
+    if (navigationAtTop)
+        bottomView.frame = CGRectMake(0, 0, self.view.frame.size.width, 44);
+
     UIButton *closeButton = [[UIButton alloc] initWithFrame:CGRectMake(10, (bottomView.frame.size.height-40)/2, 40, 40)];
     [closeButton addTarget:self action:@selector(onClose) forControlEvents:UIControlEventTouchUpInside];
     [closeButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_close.png"]]forState:UIControlStateNormal];
     closeButton.tintColor = iconColor;
     closeButton.backgroundColor = [UIColor clearColor];
     [bottomView addSubview:closeButton];
-
-    bool navigationAtTop = false;
-    if ([options objectForKey:@"navigationAtTop"] != nil)
-        navigationAtTop = [[options objectForKey:@"navigationAtTop"] boolValue];
-
-    if (navigationAtTop)
-        bottomView.frame = CGRectMake(bottomView.frame.origin.x, 0, bottomView.frame.size.width, bottomView.frame.size.height);
 
     if (!isPDF)
     {
@@ -95,6 +95,9 @@ alpha:			1.0 \
     webView.backgroundColor = [UIColor whiteColor];
     webView.delegate = self;
     [self.view addSubview:webView];
+
+    if (navigationAtTop)
+        webView.frame = CGRectMake(0, bottomView.frame.size.height, self.view.frame.size.width, self.view.frame.size.height - bottomView.frame.size.height);
 
     ai = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     ai.center = CGPointMake(webView.bounds.size.width/2, (webView.bounds.size.height/2));
