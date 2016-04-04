@@ -53,6 +53,13 @@ alpha:			1.0 \
     closeButton.backgroundColor = [UIColor clearColor];
     [bottomView addSubview:closeButton];
 
+    bool navigationAtTop = false;
+    if ([options objectForKey:@"navigationAtTop"] != nil)
+        navigationAtTop = [[options objectForKey:@"navigationAtTop"] boolValue];
+
+    if (navigationAtTop)
+        bottomView.frame = CGRectMake(bottomView.frame.origin.x, 0, bottomView.frame.size.width, bottomView.frame.size.height);
+
     if (!isPDF)
     {
         UIView *middleView = [[UIView alloc] initWithFrame:CGRectMake((bottomView.frame.size.width - 100)/2, 0, 100, bottomView.frame.size.height)];
@@ -104,14 +111,14 @@ alpha:			1.0 \
     [super viewWillAppear:animated];
     [UIApplication sharedApplication].statusBarHidden = true;
     NSString *urlString = [options objectForKey:@"url"];
-	
+
 	if ([options objectForKey:@"urlEncoding"] != nil)
 	{
 		bool encodeURL = [[options objectForKey:@"urlEncoding"] boolValue];
 		if (encodeURL)
 			urlString = [[options objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	}
-	
+
 	[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
 }
 
