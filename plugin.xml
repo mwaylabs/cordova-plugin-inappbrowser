@@ -53,9 +53,9 @@
     <source-file src="src/ios/WebViewPlugin.m" />
     <header-file src="src/ios/WebViewController.h" />
     <source-file src="src/ios/WebViewController.m" />
-    <resource-file src="src/ios/images/ic_nav_back@2x.png" target="src/ios/images/ic_nav_back@2x.png" />
-    <resource-file src="src/ios/images/ic_nav_close@2x.png" target="src/ios/images/ic_nav_close@2x.png" />
-    <resource-file src="src/ios/images/ic_nav_forward@2x.png" target="src/ios/images/ic_nav_forward@2x.png" />
-    <resource-file src="src/ios/images/ic_nav_refresh@2x.png" target="src/ios/images/ic_nav_refresh@2x.png" />
+    <resource-file src="src/ios/images/ic_nav_back.png" target="src/ios/images/ic_nav_back.png" />
+    <resource-file src="src/ios/images/ic_nav_close.png" target="src/ios/images/ic_nav_close.png" />
+    <resource-file src="src/ios/images/ic_nav_forward.png" target="src/ios/images/ic_nav_forward.png" />
+    <resource-file src="src/ios/images/ic_nav_refresh.png" target="src/ios/images/ic_nav_refresh.png" />
   </platform>
 </plugin>
