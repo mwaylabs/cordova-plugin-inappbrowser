@@ -40,10 +40,11 @@ To use the "bold" icons option please use the branch: 'inappbrowser-bold':
 - visibleAddress: (Only for Android) Defines whether if you can see the address url you are visiting or not. Expects a boolean.
 - editableAddress: (Only for Android) Defines whether if you can edit the address url you are visiting or not. Expects a boolean.
 - navigationAtTop: Defines whether to position the navigation at the top or at the bottom of screen (bottom by default). Expects a boolean
-- icons - (Only for Android):
+- icons: Expects an object { (ignored when 'isPDF' is true)
   - backward: Defines whether the backward button is shown or not. Expects a boolean.
   - forward: Defines whether the forward button is shown or not. Expects a boolean.
   - refresh: Defines whether the refresh button is shown or not. Expects a boolean.
+}
 
 ### Supported Platforms
 - iOS 7+

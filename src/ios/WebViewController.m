@@ -62,6 +62,23 @@ alpha:			1.0 \
 
     if (!isPDF)
     {
+        bool showBackwardButton = true;
+        bool showForwardButton = true;
+        bool showRefreshButton = true;
+
+        NSDictionary *icons = [options objectForKey:@"icons"];
+        if (icons != nil)
+        {
+            if ([icons objectForKey:@"backward"] != nil)
+                showBackwardButton = [[icons objectForKey:@"backward"] boolValue];
+
+            if ([icons objectForKey:@"forward"] != nil)
+                showForwardButton = [[icons objectForKey:@"forward"] boolValue];
+
+            if ([icons objectForKey:@"refresh"] != nil)
+                showRefreshButton = [[icons objectForKey:@"refresh"] boolValue];
+        }
+
         UIView *middleView = [[UIView alloc] initWithFrame:CGRectMake((bottomView.frame.size.width - 100)/2, 0, 100, bottomView.frame.size.height)];
         middleView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         middleView.backgroundColor = [UIColor clearColor];
@@ -71,6 +88,7 @@ alpha:			1.0 \
         [backButton addTarget:self action:@selector(onBack) forControlEvents:UIControlEventTouchUpInside];
         [backButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_back.png"]]forState:UIControlStateNormal];
         backButton.enabled = NO;
+        [backButton setHidden:!showBackwardButton];
         [middleView addSubview: backButton];
 
 
@@ -79,11 +97,13 @@ alpha:			1.0 \
         forwardButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
         [forwardButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_forward.png"]]forState:UIControlStateNormal];
         forwardButton.enabled = NO;
+        [forwardButton setHidden:!showForwardButton];
         [middleView addSubview: forwardButton];
 
         refreshButton = [[UIButton alloc] initWithFrame:CGRectMake(bottomView.frame.size.width-50, (bottomView.frame.size.height-40)/2, 40, 40)];
         [refreshButton addTarget:self action:@selector(onRefresh) forControlEvents:UIControlEventTouchUpInside];
         [refreshButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_refresh.png"]]forState:UIControlStateNormal];
+        [refreshButton setHidden:!showRefreshButton];
         [bottomView addSubview:refreshButton];
     }
 
