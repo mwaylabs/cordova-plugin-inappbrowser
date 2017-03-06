@@ -52,12 +52,15 @@ public class WebViewPlugin extends CordovaPlugin {
     private static final String   VISIBLE_ADDRESS   = "visibleAddress";
     private static final String   EDITABLE_ADDRESS  = "editableAddress";
     private static final String   ICONS             = "icons";
+    private static final String   ICONS_RESOURCES   = "iconsResources";
     private static final String   ICON_BACKWARD     = "backward";
     private static final String   ICON_FORWARD      = "forward";
     private static final String   ICON_REFRESH      = "refresh";
+    private static final String   ICON_CLOSE        = "close";
     private static final String   LOAD_START_EVENT  = "loadstart";
     private static final String   LOAD_STOP_EVENT   = "loadstop";
     private static final String   LOAD_ERROR_EVENT  = "loaderror";
+    private static final int      ICON_COLOR_NULL   = -14;
 
     private InAppBrowserDialog    dialog;
     private WebView               inAppWebView;
@@ -75,6 +78,10 @@ public class WebViewPlugin extends CordovaPlugin {
     private boolean               mIsBackward;
     private boolean               mIsForward;
     private boolean               mIsRefresh;
+    private String                mCloseIcon;
+    private String                mBackwardIcon;
+    private String                mForwardIcon;
+    private String                mRefreshIcon;
 
     @Override
     public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -89,10 +96,10 @@ public class WebViewPlugin extends CordovaPlugin {
                         String result = "";
                         try {
                             result = WebViewPlugin.this.showWebPage(args);
-                        } catch (JSONException e) {
+                        } catch (final JSONException e) {
                             e.printStackTrace();
                         }
-                        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, result);
+                        final PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, result);
                         pluginResult.setKeepCallback(true);
                         callbackContext.sendPluginResult(pluginResult);
                     }
@@ -140,10 +147,10 @@ public class WebViewPlugin extends CordovaPlugin {
         });
 
         try {
-            JSONObject obj = new JSONObject();
+            final JSONObject obj = new JSONObject();
             obj.put("type", EXIT_EVENT);
             this.sendUpdate(obj, false);
-        } catch (JSONException ex) {
+        } catch (final JSONException ex) {
             Log.d(LOG_TAG, "Should never happen");
         }
     }
@@ -172,7 +179,7 @@ public class WebViewPlugin extends CordovaPlugin {
      * @param url to load
      */
     private void navigate(final String url) {
-        InputMethodManager imm = (InputMethodManager) this.cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        final InputMethodManager imm = (InputMethodManager) this.cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(this.edittext.getWindowToken(), 0);
 
         if (!url.startsWith("http") && !url.startsWith("file:")) {
@@ -208,50 +215,70 @@ public class WebViewPlugin extends CordovaPlugin {
         this.showLocationBar = true;
         this.mIsVisible = false;
         this.mIsEditable = false;
-        JSONObject features = json.getJSONObject(0);
+        this.mIconColor = ICON_COLOR_NULL;
+        final JSONObject features = json.getJSONObject(0);
         if (features != null) {
-            String iColor = features.getString(ICON_COLOR);
+            final String iColor = features.getString(ICON_COLOR);
             if (iColor != null) {
                 this.mIconColor = Color.parseColor(iColor.replaceAll("\\s+", ""));
             }
-            String bColor = features.getString(BACKGROUND_COLOR);
+            final String bColor = features.getString(BACKGROUND_COLOR);
             if (bColor != null) {
                 this.mBgColor = Color.parseColor(bColor.replaceAll("\\s+", ""));
             }
-            String u = features.getString(URL);
+            final String u = features.getString(URL);
             if (u != null) {
                 this.mUrl = u.replaceAll("\\s+", "");
             }
             if (features.has(IS_PDF)) {
-                boolean iPDF = features.getBoolean(IS_PDF);
+                final boolean iPDF = features.getBoolean(IS_PDF);
                 this.mIsPDF = iPDF;
             }
             if (features.has(VISIBLE_ADDRESS)) {
-                boolean vText = features.getBoolean(VISIBLE_ADDRESS);
+                final boolean vText = features.getBoolean(VISIBLE_ADDRESS);
                 this.mIsVisible = vText;
             }
             if (features.has(EDITABLE_ADDRESS)) {
-                boolean eText = features.getBoolean(EDITABLE_ADDRESS);
+                final boolean eText = features.getBoolean(EDITABLE_ADDRESS);
                 this.mIsEditable = eText;
             }
-            JSONObject jo = features.getJSONObject(ICONS);
+            final JSONObject jo = features.getJSONObject(ICONS);
             if (jo.has(ICON_BACKWARD)) {
-                boolean iBack = jo.getBoolean(ICON_BACKWARD);
+                final boolean iBack = jo.getBoolean(ICON_BACKWARD);
                 this.mIsBackward = iBack;
             }
             if (jo.has(ICON_FORWARD)) {
-                boolean iForw = jo.getBoolean(ICON_FORWARD);
+                final boolean iForw = jo.getBoolean(ICON_FORWARD);
                 this.mIsForward = iForw;
             }
             if (jo.has(ICON_REFRESH)) {
-                boolean iRefresh = jo.getBoolean(ICON_REFRESH);
+                final boolean iRefresh = jo.getBoolean(ICON_REFRESH);
                 this.mIsRefresh = iRefresh;
+            }
+            final JSONObject jor = features.getJSONObject(ICONS_RESOURCES);
+            if (jor != null) {
+                if (jor.has(ICON_CLOSE)) {
+                    final String iClose = jor.getString(ICON_CLOSE);
+                    this.mCloseIcon = iClose;
+                }
+                if (jor.has(ICON_BACKWARD)) {
+                    final String iBack = jor.getString(ICON_BACKWARD);
+                    this.mBackwardIcon = iBack;
+                }
+                if (jor.has(ICON_FORWARD)) {
+                    final String iForw = jor.getString(ICON_FORWARD);
+                    this.mForwardIcon = iForw;
+                }
+                if (jor.has(ICON_REFRESH)) {
+                    final String iRefresh = jor.getString(ICON_REFRESH);
+                    this.mRefreshIcon = iRefresh;
+                }
             }
         }
         final CordovaWebView thatWebView = this.webView;
 
         // Create dialog in new thread
-        Runnable runnable = new Runnable() {
+        final Runnable runnable = new Runnable() {
 
             /**
              * Convert our DIP units to Pixels
@@ -259,7 +286,7 @@ public class WebViewPlugin extends CordovaPlugin {
              * @return int
              */
             private int dpToPixels(final int dipValue) {
-                int value = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                final int value = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                         dipValue,
                         WebViewPlugin.this.cordova.getActivity().getResources().getDisplayMetrics()
                         );
@@ -278,11 +305,11 @@ public class WebViewPlugin extends CordovaPlugin {
                 WebViewPlugin.this.dialog.setInAppBroswer(WebViewPlugin.this.getWebViewPlugin());
 
                 // Main container layout
-                LinearLayout main = new LinearLayout(WebViewPlugin.this.cordova.getActivity());
+                final LinearLayout main = new LinearLayout(WebViewPlugin.this.cordova.getActivity());
                 main.setOrientation(LinearLayout.VERTICAL);
 
                 // Toolbar layout
-                RelativeLayout toolbar = new RelativeLayout(WebViewPlugin.this.cordova.getActivity());
+                final RelativeLayout toolbar = new RelativeLayout(WebViewPlugin.this.cordova.getActivity());
                 toolbar.setBackgroundColor(WebViewPlugin.this.mBgColor);//android.graphics.Color.LTGRAY);
                 toolbar.setLayoutParams(new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, this.dpToPixels(44)));
                 toolbar.setPadding(this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2));
@@ -290,7 +317,7 @@ public class WebViewPlugin extends CordovaPlugin {
                 toolbar.setVerticalGravity(Gravity.TOP);
 
                 // Action Button Container layout
-                RelativeLayout actionButtonContainer = new RelativeLayout(WebViewPlugin.this.cordova.getActivity());
+                final RelativeLayout actionButtonContainer = new RelativeLayout(WebViewPlugin.this.cordova.getActivity());
                 actionButtonContainer.setLayoutParams(new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                         android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
                 actionButtonContainer.setHorizontalGravity(Gravity.LEFT);
@@ -298,17 +325,28 @@ public class WebViewPlugin extends CordovaPlugin {
                 actionButtonContainer.setId(1);
 
                 // Back button
-                Button back = new Button(WebViewPlugin.this.cordova.getActivity());
-                RelativeLayout.LayoutParams backLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                final Button back = new Button(WebViewPlugin.this.cordova.getActivity());
+                final RelativeLayout.LayoutParams backLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT);
                 backLayoutParams.addRule(RelativeLayout.ALIGN_LEFT);
                 back.setLayoutParams(backLayoutParams);
                 back.setContentDescription("Back Button");
                 back.setId(2);
-                Resources activityRes = WebViewPlugin.this.cordova.getActivity().getResources();
-                int backResId = activityRes.getIdentifier("ic_action_previous_item", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
+                final Resources activityRes = WebViewPlugin.this.cordova.getActivity().getResources();
+                final int backResId = activityRes.getIdentifier("ic_action_previous_item", "drawable",
+                        WebViewPlugin.this.cordova.getActivity().getPackageName());
                 Drawable backIcon = activityRes.getDrawable(backResId);
-                backIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
+                if (WebViewPlugin.this.mBackwardIcon != null) {
+                    backIcon = Drawable.createFromPath(WebViewPlugin.this.mBackwardIcon);
+                    if (backIcon == null) {
+                        final int backRId = activityRes.getIdentifier(WebViewPlugin.this.mBackwardIcon, "drawable",
+                                WebViewPlugin.this.cordova.getActivity().getPackageName());
+                        backIcon = activityRes.getDrawable(backRId);
+                    }
+                }
+                if (WebViewPlugin.this.mIconColor != ICON_COLOR_NULL) {
+                    backIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
+                }
                 if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
                     back.setBackgroundDrawable(backIcon);
                 } else {
@@ -323,16 +361,26 @@ public class WebViewPlugin extends CordovaPlugin {
                 });
 
                 // Forward button
-                Button forward = new Button(WebViewPlugin.this.cordova.getActivity());
-                RelativeLayout.LayoutParams forwardLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                final Button forward = new Button(WebViewPlugin.this.cordova.getActivity());
+                final RelativeLayout.LayoutParams forwardLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT);
                 forwardLayoutParams.addRule(RelativeLayout.RIGHT_OF, 2);
                 forward.setLayoutParams(forwardLayoutParams);
                 forward.setContentDescription("Forward Button");
                 forward.setId(3);
-                int fwdResId = activityRes.getIdentifier("ic_action_next_item", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
+                final int fwdResId = activityRes.getIdentifier("ic_action_next_item", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
                 Drawable fwdIcon = activityRes.getDrawable(fwdResId);
-                fwdIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
+                if (WebViewPlugin.this.mForwardIcon != null) {
+                    fwdIcon = Drawable.createFromPath(WebViewPlugin.this.mForwardIcon);
+                    if (fwdIcon == null) {
+                        final int fwdRId = activityRes.getIdentifier(WebViewPlugin.this.mForwardIcon, "drawable",
+                                WebViewPlugin.this.cordova.getActivity().getPackageName());
+                        fwdIcon = activityRes.getDrawable(fwdRId);
+                    }
+                }
+                if (WebViewPlugin.this.mIconColor != ICON_COLOR_NULL) {
+                    fwdIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
+                }
                 if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
                     forward.setBackgroundDrawable(fwdIcon);
                 } else {
@@ -348,7 +396,7 @@ public class WebViewPlugin extends CordovaPlugin {
 
                 // Edit Text Box
                 WebViewPlugin.this.edittext = new EditText(WebViewPlugin.this.cordova.getActivity());
-                RelativeLayout.LayoutParams textLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                final RelativeLayout.LayoutParams textLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT);
                 textLayoutParams.addRule(RelativeLayout.RIGHT_OF, 1);
                 textLayoutParams.addRule(RelativeLayout.LEFT_OF, 5);
@@ -381,24 +429,34 @@ public class WebViewPlugin extends CordovaPlugin {
                 WebViewPlugin.this.inAppWebView.setLayoutParams(new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT));
                 WebViewPlugin.this.inAppWebView.setWebChromeClient(new InAppChromeClient(thatWebView));
-                WebViewClient client = new WebViewPluginClient(thatWebView, WebViewPlugin.this.edittext);
+                final WebViewClient client = new WebViewPluginClient(thatWebView, WebViewPlugin.this.edittext);
                 WebViewPlugin.this.inAppWebView.setWebViewClient(client);
-                WebSettings settings = WebViewPlugin.this.inAppWebView.getSettings();
+                final WebSettings settings = WebViewPlugin.this.inAppWebView.getSettings();
                 settings.setJavaScriptEnabled(true);
                 settings.setJavaScriptCanOpenWindowsAutomatically(true);
                 settings.setBuiltInZoomControls(true);
                 settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
 
-                Button refresh = new Button(WebViewPlugin.this.cordova.getActivity());
-                RelativeLayout.LayoutParams refreshLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                final Button refresh = new Button(WebViewPlugin.this.cordova.getActivity());
+                final RelativeLayout.LayoutParams refreshLayoutParams = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT);
                 refreshLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 refresh.setLayoutParams(refreshLayoutParams);
                 refresh.setContentDescription("Refresh Button");
                 refresh.setId(5);
-                int refreshResId = activityRes.getIdentifier("ic_action_refresh", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
+                final int refreshResId = activityRes.getIdentifier("ic_action_refresh", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
                 Drawable refreshIcon = activityRes.getDrawable(refreshResId);
-                refreshIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
+                if (WebViewPlugin.this.mRefreshIcon != null) {
+                    refreshIcon = Drawable.createFromPath(WebViewPlugin.this.mRefreshIcon);
+                    if (refreshIcon == null) {
+                        final int refreshRId = activityRes.getIdentifier(WebViewPlugin.this.mRefreshIcon, "drawable",
+                                WebViewPlugin.this.cordova.getActivity().getPackageName());
+                        refreshIcon = activityRes.getDrawable(refreshRId);
+                    }
+                }
+                if (WebViewPlugin.this.mIconColor != ICON_COLOR_NULL) {
+                    refreshIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
+                }
                 if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
                 {
                     refresh.setBackgroundDrawable(refreshIcon);
@@ -416,10 +474,10 @@ public class WebViewPlugin extends CordovaPlugin {
                 });
 
                 //Toggle whether this is enabled or not!
-                Bundle appSettings = WebViewPlugin.this.cordova.getActivity().getIntent().getExtras();
-                boolean enableDatabase = appSettings == null ? true : appSettings.getBoolean("WebViewPluginStorageEnabled", true);
+                final Bundle appSettings = WebViewPlugin.this.cordova.getActivity().getIntent().getExtras();
+                final boolean enableDatabase = appSettings == null ? true : appSettings.getBoolean("WebViewPluginStorageEnabled", true);
                 if (enableDatabase) {
-                    String databasePath = WebViewPlugin.this.cordova.getActivity().getApplicationContext().getDir("WebViewPluginDB", Context.MODE_PRIVATE).getPath();
+                    final String databasePath = WebViewPlugin.this.cordova.getActivity().getApplicationContext().getDir("WebViewPluginDB", Context.MODE_PRIVATE).getPath();
                     settings.setDatabasePath(databasePath);
                     settings.setDatabaseEnabled(true);
                 }
@@ -460,7 +518,7 @@ public class WebViewPlugin extends CordovaPlugin {
                 // Add our webview to our main view/layout
                 main.addView(WebViewPlugin.this.inAppWebView);
 
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                final WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
                 lp.copyFrom(WebViewPlugin.this.dialog.getWindow().getAttributes());
                 lp.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
                 lp.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -491,7 +549,7 @@ public class WebViewPlugin extends CordovaPlugin {
      */
     private void sendUpdate(final JSONObject obj, final boolean keepCallback, final PluginResult.Status status) {
         if (this.callbackContext != null) {
-            PluginResult result = new PluginResult(status, obj);
+            final PluginResult result = new PluginResult(status, obj);
             result.setKeepCallback(keepCallback);
             this.callbackContext.sendPluginResult(result);
             if (!keepCallback) {
@@ -535,31 +593,31 @@ public class WebViewPlugin extends CordovaPlugin {
             // If dialing phone (tel:5551212)
             else if (url.startsWith(WebView.SCHEME_TEL)) {
                 try {
-                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    final Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse(url));
                     WebViewPlugin.this.cordova.getActivity().startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
+                } catch (final android.content.ActivityNotFoundException e) {
                     LOG.e(LOG_TAG, "Error dialing " + url + ": " + e.toString());
                 }
             }
 
             else if (url.startsWith("geo:") || url.startsWith(WebView.SCHEME_MAILTO) || url.startsWith("market:")) {
                 try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    final Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(Uri.parse(url));
                     WebViewPlugin.this.cordova.getActivity().startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
+                } catch (final android.content.ActivityNotFoundException e) {
                     LOG.e(LOG_TAG, "Error with " + url + ": " + e.toString());
                 }
             }
             // If sms:5551212?body=This is the message
             else if (url.startsWith("sms:")) {
                 try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    final Intent intent = new Intent(Intent.ACTION_VIEW);
 
                     // Get address
                     String address = null;
-                    int parmIndex = url.indexOf('?');
+                    final int parmIndex = url.indexOf('?');
                     if (parmIndex == -1) {
                         address = url.substring(4);
                     }
@@ -567,8 +625,8 @@ public class WebViewPlugin extends CordovaPlugin {
                         address = url.substring(4, parmIndex);
 
                         // If body, then set sms body
-                        Uri uri = Uri.parse(url);
-                        String query = uri.getQuery();
+                        final Uri uri = Uri.parse(url);
+                        final String query = uri.getQuery();
                         if (query != null) {
                             if (query.startsWith("body=")) {
                                 intent.putExtra("sms_body", query.substring(5));
@@ -579,7 +637,7 @@ public class WebViewPlugin extends CordovaPlugin {
                     intent.putExtra("address", address);
                     intent.setType("vnd.android-dir/mms-sms");
                     WebViewPlugin.this.cordova.getActivity().startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
+                } catch (final android.content.ActivityNotFoundException e) {
                     LOG.e(LOG_TAG, "Error sending sms " + url + ":" + e.toString());
                 }
             }
@@ -592,12 +650,12 @@ public class WebViewPlugin extends CordovaPlugin {
             }
 
             try {
-                JSONObject obj = new JSONObject();
+                final JSONObject obj = new JSONObject();
                 obj.put("type", LOAD_START_EVENT);
                 obj.put("url", newloc);
 
                 WebViewPlugin.this.sendUpdate(obj, true);
-            } catch (JSONException ex) {
+            } catch (final JSONException ex) {
                 Log.d(LOG_TAG, "Should never happen");
             }
         }
@@ -607,12 +665,12 @@ public class WebViewPlugin extends CordovaPlugin {
             super.onPageFinished(view, url);
 
             try {
-                JSONObject obj = new JSONObject();
+                final JSONObject obj = new JSONObject();
                 obj.put("type", LOAD_STOP_EVENT);
                 obj.put("url", url);
 
                 WebViewPlugin.this.sendUpdate(obj, true);
-            } catch (JSONException ex) {
+            } catch (final JSONException ex) {
                 Log.d(LOG_TAG, "Should never happen");
             }
         }
@@ -622,14 +680,14 @@ public class WebViewPlugin extends CordovaPlugin {
             super.onReceivedError(view, errorCode, description, failingUrl);
 
             try {
-                JSONObject obj = new JSONObject();
+                final JSONObject obj = new JSONObject();
                 obj.put("type", LOAD_ERROR_EVENT);
                 obj.put("url", failingUrl);
                 obj.put("code", errorCode);
                 obj.put("message", description);
 
                 WebViewPlugin.this.sendUpdate(obj, true, PluginResult.Status.ERROR);
-            } catch (JSONException ex) {
+            } catch (final JSONException ex) {
                 Log.d(LOG_TAG, "Should never happen");
             }
         }
