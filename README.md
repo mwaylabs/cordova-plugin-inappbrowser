@@ -32,7 +32,7 @@ This plugin adds a customizable in app browser to your cordova application.
 ```
 
 ## Options
-- All parameters are required but navigationAtTop (when not specified the navigation will show at the bottom), urlEncoding (when not specified the url will not be encoded) and iconsResources (when not specified the default icons will be used).
+- All parameters are required except navigationAtTop (when not specified the navigation will show at the bottom), urlEncoding (when not specified the url will not be encoded), iconsResources (when not specified the default icons will be used) and iconColor (when not specified the icons will not be tinted).
 
 - iconColor: Defines the color of the icons expectes a string with a colorcode e.g. '#000000'
 - backgroundColor: Defines the backgroundcolor of the bar at the bottom of the webview, expectes a string with a colorcode e.g. '#FFFFFF'
