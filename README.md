@@ -17,12 +17,12 @@ This plugin adds a customizable in app browser to your cordova application.
         forward: true,
         refresh: true
       },
-  		  iconsResources:{
+      iconsResources:{
         backward: 'file://main/assets/images/backward.png',
         forward: 'file://main/assets/images/forward.png',
         refresh: 'file://main/assets/images/refresh.png',
-  		    close: 'file://main/assets/images/close.png'
-  		  }
+        close: 'file://main/assets/images/close.png'
+      }
     });
 ```
 
