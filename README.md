@@ -51,24 +51,16 @@ This plugin adds a customizable in app browser to your cordova application.
   - backward: Defines the icon for the backward button. Expects either resource files, files from the device storage or assets from within the *www* folder.
   - forward: Defines the icon for the forward button. Expects either resource files, files from the device storage or assets from within the *www* folder.
   - refresh: Defines the icon for the refresh button. Expects either resource files, files from the device storage or assets from within the *www* folder.
-  - close: Defines the icon for the close button. Expects either resource files, files from the device storage or assets from within the *www* folder.
+  - close: Only for iOS. Defines the icon for the close button. Expects either resource files, files from the device storage or assets from within the *www* folder.
 }
 
 ### Examples of "iconsResources"
-
-#### Using files from the device storage
-The path to the files must be defined absolute from the root of the file system.
-
-```
-    backward:'/sdcard/icon.png', //=> (Android)
-    refresh:'file:///icon.png' //=> (iOS)
-```
 
 #### Using native app resources
 Each app has a resource folder, e.g. the _res_ folder for Android apps or the _Resources_ folder for iOS apps. The following example shows how to use the app icon from within the app's resource folder.
 
 ```
-    backward:'ic_back_icon', //=> res/drawable/ic_back_icon.png (Android)
+    backward:'res://ic_back_icon', //=> res/drawable/ic_back_icon.png (Android)
     close:'res://ic_nav_close.png' //=> Resources/ic_nav_close (iOS)
 ```
 
@@ -76,8 +68,16 @@ Each app has a resource folder, e.g. the _res_ folder for Android apps or the _R
 The path to the files must be defined relative from the root of the mobile web app folder, which is located under the _www_ folder.
 
 ```
-    backward:'www/main/assets/images/logo.png', //=> www/main/assets/images/logo.png (Android)
+    backward:'file://www/main/assets/images/logo.png', //=> www/main/assets/images/logo.png (Android)
     refresh:'file://img/logo.png' //=> www/img/logo.png (iOS)
+```
+
+#### Using files from the device storage
+The path to the files must be defined absolute from the root of the file system.
+
+```
+    backward:'file:///sdcard/Pictures/icon.png', //=> (Android)
+    refresh:'file:///icon.png' //=> (iOS)
 ```
 
 ### Supported Platforms
