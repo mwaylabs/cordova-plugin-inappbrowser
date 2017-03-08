@@ -7,9 +7,6 @@
 //
 
 #import "WebViewController.h"
-#ifndef __CORDOVA_4_0_0
-#import <Cordova/NSData+Base64.h>
-#endif
 
 #define RGBCOLOR(rgbValue) [UIColor \
 colorWithRed:	((float)((rgbValue & 0x00FF0000) >> 16))/0xFF \
@@ -224,10 +221,6 @@ alpha:			1.0 \
 	{
 		return [self dataForAsset:path];
 	}
-	else if ([path hasPrefix:@"base64:"])
-	{
-		return [self dataFromBase64:path];
-	}
 
 	NSFileManager* fileManager = [NSFileManager defaultManager];
 
@@ -321,38 +314,6 @@ alpha:			1.0 \
 	}
 
 	NSData* data = [fileManager contentsAtPath:absPath];
-
-	return data;
-}
-
-/**
- * Retrieves the data for a base64 encoded string.
- *
- * @param base64String
- * Base64 encoded string.
- * @return
- * The data for the attachment.
- */
-- (NSData*) dataFromBase64:(NSString*)base64String
-{
-	NSUInteger length = [base64String length];
-	NSRegularExpression *regex;
-	NSString *dataString;
-
-	regex = [NSRegularExpression regularExpressionWithPattern:@"^base64:[^/]+.."
-													  options:NSRegularExpressionCaseInsensitive
-														error:Nil];
-
-	dataString = [regex stringByReplacingMatchesInString:base64String
-												 options:0
-												   range:NSMakeRange(0, length)
-											withTemplate:@""];
-
-#ifndef __CORDOVA_3_8_0
-	NSData* data = [NSData dataFromBase64String:dataString];
-#else
-	NSData* data = [[NSData alloc] initWithBase64EncodedString:dataString options:0];
-#endif
 
 	return data;
 }

@@ -48,20 +48,13 @@ This plugin adds a customizable in app browser to your cordova application.
   - refresh: Defines whether the refresh button is shown or not. Expects a boolean.
 },
 - iconsResources: Expects an object { (ignored when 'isPDF' is true and it will be tinted if there is a value in 'iconColor')
-  - backward: Defines the icon for the backward button. Expects either base64 encoded datas (only for iOS), resource files, files from the device storage or assets from within the *www* folder.
-  - forward: Defines the icon for the forward button. Expects either base64 encoded datas (only for iOS), resource files, files from the device storage or assets from within the *www* folder.
-  - refresh: Defines the icon for the refresh button. Expects either base64 encoded datas (only for iOS), resource files, files from the device storage or assets from within the *www* folder.
-  - close: Defines the icon for the close button. Expects either base64 encoded datas (only for iOS), resource files, files from the device storage or assets from within the *www* folder.
+  - backward: Defines the icon for the backward button. Expects either resource files, files from the device storage or assets from within the *www* folder.
+  - forward: Defines the icon for the forward button. Expects either resource files, files from the device storage or assets from within the *www* folder.
+  - refresh: Defines the icon for the refresh button. Expects either resource files, files from the device storage or assets from within the *www* folder.
+  - close: Defines the icon for the close button. Expects either resource files, files from the device storage or assets from within the *www* folder.
 }
 
 ### Examples of "iconsResources"
-
-#### Using Base64 encoded content (Only iOS)
-The code below shows how to use a base64 encoded image which will be added as a image with the name *icon.png*.
-
-```
-    backward:'base64:icon.png//iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/...'
-```
 
 #### Using files from the device storage
 The path to the files must be defined absolute from the root of the file system.
@@ -83,7 +76,7 @@ Each app has a resource folder, e.g. the _res_ folder for Android apps or the _R
 The path to the files must be defined relative from the root of the mobile web app folder, which is located under the _www_ folder.
 
 ```
-    backward:'/img/logo.png', //=> /img/logo.png (Android)
+    backward:'www/main/assets/images/logo.png', //=> www/main/assets/images/logo.png (Android)
     refresh:'file://img/logo.png' //=> www/img/logo.png (iOS)
 ```
 

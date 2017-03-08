@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
@@ -38,6 +39,8 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -333,16 +336,27 @@ public class WebViewPlugin extends CordovaPlugin {
                 back.setContentDescription("Back Button");
                 back.setId(2);
                 final Resources activityRes = WebViewPlugin.this.cordova.getActivity().getResources();
-                final int backResId = activityRes.getIdentifier("ic_action_previous_item", "drawable",
-                        WebViewPlugin.this.cordova.getActivity().getPackageName());
-                Drawable backIcon = activityRes.getDrawable(backResId);
+                Drawable backIcon = null;
                 if (WebViewPlugin.this.mBackwardIcon != null) {
-                    backIcon = Drawable.createFromPath(WebViewPlugin.this.mBackwardIcon);
+                    try {
+                        backIcon = Drawable.createFromStream(WebViewPlugin.this.cordova.getActivity().getAssets().open(WebViewPlugin.this.mBackwardIcon), null);
+                    } catch (final IOException e) {
+                        backIcon = null;
+                    }
                     if (backIcon == null) {
                         final int backRId = activityRes.getIdentifier(WebViewPlugin.this.mBackwardIcon, "drawable",
                                 WebViewPlugin.this.cordova.getActivity().getPackageName());
-                        backIcon = activityRes.getDrawable(backRId);
+                        try {
+                            backIcon = activityRes.getDrawable(backRId);
+                        } catch (final NotFoundException e) {
+                            backIcon = null;
+                        }
                     }
+                }
+                if (backIcon == null) {
+                    final int backResId = activityRes.getIdentifier("ic_action_previous_item", "drawable",
+                            WebViewPlugin.this.cordova.getActivity().getPackageName());
+                    backIcon = activityRes.getDrawable(backResId);
                 }
                 if (WebViewPlugin.this.mIconColor != ICON_COLOR_NULL) {
                     backIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
@@ -368,15 +382,26 @@ public class WebViewPlugin extends CordovaPlugin {
                 forward.setLayoutParams(forwardLayoutParams);
                 forward.setContentDescription("Forward Button");
                 forward.setId(3);
-                final int fwdResId = activityRes.getIdentifier("ic_action_next_item", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
-                Drawable fwdIcon = activityRes.getDrawable(fwdResId);
+                Drawable fwdIcon = null;
                 if (WebViewPlugin.this.mForwardIcon != null) {
-                    fwdIcon = Drawable.createFromPath(WebViewPlugin.this.mForwardIcon);
+                    try {
+                        fwdIcon = Drawable.createFromStream(WebViewPlugin.this.cordova.getActivity().getAssets().open(WebViewPlugin.this.mForwardIcon), null);
+                    } catch (final IOException e) {
+                        fwdIcon = null;
+                    }
                     if (fwdIcon == null) {
                         final int fwdRId = activityRes.getIdentifier(WebViewPlugin.this.mForwardIcon, "drawable",
                                 WebViewPlugin.this.cordova.getActivity().getPackageName());
-                        fwdIcon = activityRes.getDrawable(fwdRId);
+                        try {
+                            fwdIcon = activityRes.getDrawable(fwdRId);
+                        } catch (final NotFoundException e) {
+                            fwdIcon = null;
+                        }
                     }
+                }
+                if (fwdIcon == null) {
+                    final int fwdResId = activityRes.getIdentifier("ic_action_next_item", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
+                    fwdIcon = activityRes.getDrawable(fwdResId);
                 }
                 if (WebViewPlugin.this.mIconColor != ICON_COLOR_NULL) {
                     fwdIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
@@ -444,15 +469,28 @@ public class WebViewPlugin extends CordovaPlugin {
                 refresh.setLayoutParams(refreshLayoutParams);
                 refresh.setContentDescription("Refresh Button");
                 refresh.setId(5);
-                final int refreshResId = activityRes.getIdentifier("ic_action_refresh", "drawable", WebViewPlugin.this.cordova.getActivity().getPackageName());
-                Drawable refreshIcon = activityRes.getDrawable(refreshResId);
+                Drawable refreshIcon = null;
                 if (WebViewPlugin.this.mRefreshIcon != null) {
-                    refreshIcon = Drawable.createFromPath(WebViewPlugin.this.mRefreshIcon);
+                    try {
+                        refreshIcon = Drawable.createFromStream(WebViewPlugin.this.cordova.getActivity().getAssets().open(WebViewPlugin.this.mRefreshIcon),
+                                null);
+                    } catch (final IOException e) {
+                        refreshIcon = null;
+                    }
                     if (refreshIcon == null) {
                         final int refreshRId = activityRes.getIdentifier(WebViewPlugin.this.mRefreshIcon, "drawable",
                                 WebViewPlugin.this.cordova.getActivity().getPackageName());
-                        refreshIcon = activityRes.getDrawable(refreshRId);
+                        try {
+                            refreshIcon = activityRes.getDrawable(refreshRId);
+                        } catch (final NotFoundException e) {
+                            refreshIcon = null;
+                        }
                     }
+                }
+                if (refreshIcon == null) {
+                    final int refreshResId = activityRes.getIdentifier("ic_action_refresh", "drawable",
+                            WebViewPlugin.this.cordova.getActivity().getPackageName());
+                    refreshIcon = activityRes.getDrawable(refreshResId);
                 }
                 if (WebViewPlugin.this.mIconColor != ICON_COLOR_NULL) {
                     refreshIcon.setColorFilter(WebViewPlugin.this.mIconColor, Mode.MULTIPLY);//
