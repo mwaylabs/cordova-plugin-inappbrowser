@@ -53,95 +53,95 @@ alpha:			1.0 \
 	if (navigationAtTop)
 		bottomView.frame = CGRectMake(0, 0, self.view.frame.size.width, 44);
 
-	if (!isPDF)
+	bool showBackwardButton = true;
+	bool showForwardButton = true;
+	bool showRefreshButton = true;
+	
+	NSDictionary *icons = [options objectForKey:@"icons"];
+	if (icons != nil)
 	{
-		bool showBackwardButton = true;
-		bool showForwardButton = true;
-		bool showRefreshButton = true;
-
-		NSDictionary *icons = [options objectForKey:@"icons"];
-		if (icons != nil)
+		if ([icons objectForKey:@"backward"] != nil)
+			showBackwardButton = [[icons objectForKey:@"backward"] boolValue];
+		
+		if ([icons objectForKey:@"forward"] != nil)
+			showForwardButton = [[icons objectForKey:@"forward"] boolValue];
+		
+		if ([icons objectForKey:@"refresh"] != nil)
+			showRefreshButton = [[icons objectForKey:@"refresh"] boolValue];
+	}
+	
+	UIView *middleView = [[UIView alloc] initWithFrame:CGRectMake((bottomView.frame.size.width - 100)/2, 0, 100, bottomView.frame.size.height)];
+	middleView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+	middleView.backgroundColor = [UIColor clearColor];
+	[bottomView addSubview:middleView];
+	
+	NSDictionary *iconsResources = [options objectForKey:@"iconsResources"];
+	UIImage *backwardIcon = nil;
+	UIImage *forwardIcon = nil;
+	UIImage *refreshIcon = nil;
+	UIImage *closeIcon = nil;
+	
+	if (iconsResources != nil)
+	{
+		if ([iconsResources objectForKey:@"backward"] != nil)
 		{
-			if ([icons objectForKey:@"backward"] != nil)
-				showBackwardButton = [[icons objectForKey:@"backward"] boolValue];
-
-			if ([icons objectForKey:@"forward"] != nil)
-				showForwardButton = [[icons objectForKey:@"forward"] boolValue];
-
-			if ([icons objectForKey:@"refresh"] != nil)
-				showRefreshButton = [[icons objectForKey:@"refresh"] boolValue];
+			NSString *backwardPath = [iconsResources objectForKey:@"backward"];
+			NSData *backwardIconData = [self getDataForAttachmentPath:backwardPath];
+			//NSData *backwardIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:backwardPath]);
+			backwardIcon = [UIImage imageWithData:backwardIconData];
 		}
-
-		UIView *middleView = [[UIView alloc] initWithFrame:CGRectMake((bottomView.frame.size.width - 100)/2, 0, 100, bottomView.frame.size.height)];
-		middleView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-		middleView.backgroundColor = [UIColor clearColor];
-		[bottomView addSubview:middleView];
-
-		NSDictionary *iconsResources = [options objectForKey:@"iconsResources"];
-		UIImage *backwardIcon = nil;
-		UIImage *forwardIcon = nil;
-		UIImage *refreshIcon = nil;
-		UIImage *closeIcon = nil;
-
-		if (iconsResources != nil)
+		if ([iconsResources objectForKey:@"forward"] != nil)
 		{
-			if ([iconsResources objectForKey:@"backward"] != nil)
-			{
-				NSString *backwardPath = [iconsResources objectForKey:@"backward"];
-				NSData *backwardIconData = [self getDataForAttachmentPath:backwardPath];
-				//NSData *backwardIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:backwardPath]);
-				backwardIcon = [UIImage imageWithData:backwardIconData];
-			}
-			if ([iconsResources objectForKey:@"forward"] != nil)
-			{
-				NSString *forwardPath = [iconsResources objectForKey:@"forward"];
-				NSData *forwardIconData = [self getDataForAttachmentPath:forwardPath];
-				//NSData *forwardIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:forwardPath]);
-				forwardIcon = [UIImage imageWithData:forwardIconData];
-			}
-			if ([iconsResources objectForKey:@"refresh"] != nil)
-			{
-				NSString *refreshPath = [iconsResources objectForKey:@"refresh"];
-				NSData *refreshIconData = [self getDataForAttachmentPath:refreshPath];
-				//NSData *refreshIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:refreshPath]);
-				refreshIcon = [UIImage imageWithData:refreshIconData];
-			}
-			if ([iconsResources objectForKey:@"close"] != nil)
-			{
-				NSString *closePath = [iconsResources objectForKey:@"close"];
-				NSData *closeIconData = [self getDataForAttachmentPath:closePath];
-				//NSData *closeIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:closePath]);
-				closeIcon = [UIImage imageWithData:closeIconData];
-			}
+			NSString *forwardPath = [iconsResources objectForKey:@"forward"];
+			NSData *forwardIconData = [self getDataForAttachmentPath:forwardPath];
+			//NSData *forwardIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:forwardPath]);
+			forwardIcon = [UIImage imageWithData:forwardIconData];
 		}
-
-		UIButton *closeButton = [[UIButton alloc] initWithFrame:CGRectMake(10, (bottomView.frame.size.height-40)/2, 40, 40)];
-		[closeButton addTarget:self action:@selector(onClose) forControlEvents:UIControlEventTouchUpInside];
-		if (closeIcon == nil)
+		if ([iconsResources objectForKey:@"refresh"] != nil)
 		{
-			[closeButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_close.png"]]forState:UIControlStateNormal];
+			NSString *refreshPath = [iconsResources objectForKey:@"refresh"];
+			NSData *refreshIconData = [self getDataForAttachmentPath:refreshPath];
+			//NSData *refreshIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:refreshPath]);
+			refreshIcon = [UIImage imageWithData:refreshIconData];
+		}
+		if ([iconsResources objectForKey:@"close"] != nil)
+		{
+			NSString *closePath = [iconsResources objectForKey:@"close"];
+			NSData *closeIconData = [self getDataForAttachmentPath:closePath];
+			//NSData *closeIconData = UIImagePNGRepresentation([self getDataForAttachmentPath:closePath]);
+			closeIcon = [UIImage imageWithData:closeIconData];
+		}
+	}
+	
+	UIButton *closeButton = [[UIButton alloc] initWithFrame:CGRectMake(10, (bottomView.frame.size.height-40)/2, 40, 40)];
+	[closeButton addTarget:self action:@selector(onClose) forControlEvents:UIControlEventTouchUpInside];
+	if (closeIcon == nil)
+	{
+		[closeButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_close"]]forState:UIControlStateNormal];
+		closeButton.tintColor = iconColor;
+	}
+	else
+	{
+		if (iconColor != nil)
+		{
+			[closeButton setImage:[self tintedImageWithColor:iconColor image:closeIcon]forState:UIControlStateNormal];
 			closeButton.tintColor = iconColor;
 		}
 		else
 		{
-			if (iconColor != nil)
-			{
-				[closeButton setImage:[self tintedImageWithColor:iconColor image:closeIcon]forState:UIControlStateNormal];
-				closeButton.tintColor = iconColor;
-			}
-			else
-			{
-				[closeButton setImage:closeIcon forState:UIControlStateNormal];
-			}
+			[closeButton setImage:closeIcon forState:UIControlStateNormal];
 		}
-		closeButton.backgroundColor = [UIColor clearColor];
-		[bottomView addSubview:closeButton];
-
+	}
+	closeButton.backgroundColor = [UIColor clearColor];
+	[bottomView addSubview:closeButton];
+	
+	if (!isPDF)
+	{
 		backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (middleView.frame.size.height-40)/2, 40, 40)];
 		[backButton addTarget:self action:@selector(onBack) forControlEvents:UIControlEventTouchUpInside];
 		if (backwardIcon == nil)
 		{
-			[backButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_back.png"]]forState:UIControlStateNormal];
+			[backButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_back"]]forState:UIControlStateNormal];
 		}
 		else
 		{
@@ -159,7 +159,7 @@ alpha:			1.0 \
 		forwardButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
 		if (forwardIcon == nil)
 		{
-			[forwardButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_forward.png"]]forState:UIControlStateNormal];
+			[forwardButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_forward"]]forState:UIControlStateNormal];
 		}
 		else
 		{
@@ -176,7 +176,7 @@ alpha:			1.0 \
 		[refreshButton addTarget:self action:@selector(onRefresh) forControlEvents:UIControlEventTouchUpInside];
 		if (refreshIcon == nil)
 		{
-			[refreshButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_refresh.png"]]forState:UIControlStateNormal];
+			[refreshButton setImage:[self tintedImageWithColor:iconColor image:[UIImage imageNamed:@"ic_nav_refresh"]]forState:UIControlStateNormal];
 		}
 		else
 		{
