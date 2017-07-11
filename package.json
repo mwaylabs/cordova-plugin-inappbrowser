@@ -1,0 +1,9 @@
+{
+    "version": "1.0.0",
+    "name": "com.mwaysolutions.cordova.webviewplugin",
+    "cordova_name": "InAppBrowser",
+    "description": "Webview plugin",
+    "license": "MIT",
+    "keywords": [],
+    "engines": []
+}
