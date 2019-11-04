@@ -18,46 +18,33 @@
  */
 
 var app = {
-    // Application Constructor
     initialize: function () {
-        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
-        document.getElementById('buttonOpenWebView').addEventListener("click", this.openWebView);
+        document.getElementById('buttonRemote').addEventListener("click", this.openRemote);
+        document.getElementById('buttonLocal').addEventListener("click", this.openLocal);
     },
 
-    // deviceready Event Handler
-    //
-    // Bind any cordova events here. Common events are:
-    // 'pause', 'resume', etc.
-    onDeviceReady: function () {
-        this.receivedEvent('deviceready');
+    openRemote: function () {
+        app.openWebView('http://mwaysolutions.com', false);
     },
-
-    // Update DOM on a Received Event
-    receivedEvent: function (id) {
-        console.log('Received Event: ' + id);
+    openLocal: function () {
+        app.openWebView('file:///www/local.html', false);
     },
-
-    openWebView: function () {
+    openWebView: function (url, navigationAtTop) {
+        console.log(`opening ${url}`);
         window.webview.openWebView(null, null, {
             iconColor: '#ffff00',
             backgroundColor: '#f00000',
             isPDF: false,
-            url: 'http://mwaysolutions.com',
+            url: url,
             urlEncoding: false,
             visibleAddress: false,
             editableAddress: false,
-            navigationAtTop: false,
+            navigationAtTop: navigationAtTop,
             icons: {
                 backward: true,
                 forward: true,
                 refresh: true
             },
-            iconsResources: {
-                backward: 'file://main/assets/images/backward.png',
-                forward: 'file://main/assets/images/forward.png',
-                refresh: 'file://main/assets/images/refresh.png',
-                close: 'file://main/assets/images/close.png'
-            }
         });
     }
 };

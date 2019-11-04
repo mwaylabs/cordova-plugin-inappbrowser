@@ -8,10 +8,11 @@
 //
 
 #import <UIKit/UIKit.h>
+@class WKWebView;
 
 @interface WebViewController : UIViewController
 {
-    UIWebView *webView;
+    WKWebView *webView;
     UIActivityIndicatorView *ai;
     NSDictionary *options;
     
