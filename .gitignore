@@ -7,3 +7,4 @@ coverage/
 # sublime project files
 *.sublime-project
 *.sublime-workspace
+example/.vscode
