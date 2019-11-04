@@ -199,14 +199,17 @@ alpha:			1.0 \
 	[webView addSubview:ai];
     
     NSArray *arrangedSubviews;
-    UIView *spaceView = [UIView new];
-    spaceView.backgroundColor = bottomView.backgroundColor;
+    UIView *topSpace = [UIView new];
+    topSpace.backgroundColor = bottomView.backgroundColor;
+    
+    UIView *bottomSpace = [UIView new];
+    bottomSpace.backgroundColor = bottomView.backgroundColor;
     
     if (navigationAtTop)
     {
-        arrangedSubviews = @[spaceView, bottomView, webView];
+        arrangedSubviews = @[topSpace, bottomView, webView];
     } else {
-        arrangedSubviews = @[webView, bottomView, spaceView];
+        arrangedSubviews = @[topSpace, webView, bottomView, bottomSpace];
     }
     
     UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:arrangedSubviews];
@@ -215,12 +218,11 @@ alpha:			1.0 \
     stack.translatesAutoresizingMaskIntoConstraints = NO;
     [bottomView.heightAnchor constraintEqualToConstant:44].active = YES;
     
-    if (navigationAtTop) {
-        [spaceView.heightAnchor constraintEqualToAnchor:self.topLayoutGuide.heightAnchor].active = YES;
-    }
-    else
+    [topSpace.heightAnchor constraintEqualToAnchor:self.topLayoutGuide.heightAnchor].active = YES;
+    
+    if (bottomSpace.superview)
     {
-        [spaceView.heightAnchor constraintEqualToAnchor:self.bottomLayoutGuide.heightAnchor].active = YES;
+        [bottomSpace.heightAnchor constraintEqualToAnchor:self.bottomLayoutGuide.heightAnchor].active = YES;
     }
     
     [stack.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor].active = YES;

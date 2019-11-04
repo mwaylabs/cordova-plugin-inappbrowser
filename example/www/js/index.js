@@ -32,7 +32,8 @@ var app = {
     },
     openPDF: function () {
         window.webview.openWebView(null, null, {
-            iconColor: '#ffff00',
+            iconColor: '#0000ff',
+            backgroundColor: '#ffffff',
             isPDF: true,
             url: 'file:///www/sample.pdf',
         });

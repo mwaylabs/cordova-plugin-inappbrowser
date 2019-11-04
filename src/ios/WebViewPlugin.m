@@ -24,6 +24,7 @@
          {
              dispatch_async(dispatch_get_main_queue(), ^{
                  WebViewController *viewController = [[WebViewController alloc] initWithOptions: options];
+                 viewController.modalPresentationStyle = UIModalPresentationFullScreen;
                  [self.viewController presentViewController:viewController animated:YES completion:nil];
              });
          }
