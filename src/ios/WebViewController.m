@@ -188,9 +188,7 @@ alpha:			1.0 \
 	}
 
 
-	webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - bottomView.frame.size.height)];
-	webView.autoresizesSubviews = true;
-	webView.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+	webView = [WKWebView new];
 	webView.backgroundColor = [UIColor whiteColor];
 	webView.UIDelegate = self;
     webView.navigationDelegate = self;

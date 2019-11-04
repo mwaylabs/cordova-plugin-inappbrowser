@@ -21,13 +21,21 @@ var app = {
     initialize: function () {
         document.getElementById('buttonRemote').addEventListener("click", this.openRemote);
         document.getElementById('buttonLocal').addEventListener("click", this.openLocal);
+        document.getElementById('buttonPDF').addEventListener("click", this.openPDF);
     },
 
     openRemote: function () {
-        app.openWebView('http://mwaysolutions.com', false);
+        app.openWebView('https://mwaysolutions.com', false);
     },
     openLocal: function () {
         app.openWebView('file:///www/local.html', false);
+    },
+    openPDF: function () {
+        window.webview.openWebView(null, null, {
+            iconColor: '#ffff00',
+            isPDF: true,
+            url: 'file:///www/sample.pdf',
+        });
     },
     openWebView: function (url, navigationAtTop) {
         console.log(`opening ${url}`);
