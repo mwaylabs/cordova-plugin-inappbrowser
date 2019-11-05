@@ -7,6 +7,7 @@
 //
 
 #import "WebViewController.h"
+#import <WebKit/WebKit.h>
 
 #define RGBCOLOR(rgbValue) [UIColor \
 colorWithRed:	((float)((rgbValue & 0x00FF0000) >> 16))/0xFF \
@@ -15,7 +16,7 @@ blue:			((float)((rgbValue & 0x000000FF) >>  0))/0xFF \
 alpha:			1.0 \
 ]
 
-@interface WebViewController (private) <UIWebViewDelegate>
+@interface WebViewController (private) <WKUIDelegate, WKNavigationDelegate>
 @end
 
 @implementation WebViewController
@@ -49,9 +50,6 @@ alpha:			1.0 \
 	bool navigationAtTop = false;
 	if ([options objectForKey:@"navigationAtTop"] != nil)
 		navigationAtTop = [[options objectForKey:@"navigationAtTop"] boolValue];
-
-	if (navigationAtTop)
-		bottomView.frame = CGRectMake(0, 0, self.view.frame.size.width, 44);
 
 	bool showBackwardButton = true;
 	bool showForwardButton = true;
@@ -190,21 +188,48 @@ alpha:			1.0 \
 	}
 
 
-	webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - bottomView.frame.size.height)];
-	webView.autoresizesSubviews = true;
-	webView.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-	webView.scalesPageToFit = true;
+	webView = [WKWebView new];
 	webView.backgroundColor = [UIColor whiteColor];
-	webView.delegate = self;
-	[self.view addSubview:webView];
-
-	if (navigationAtTop)
-		webView.frame = CGRectMake(0, bottomView.frame.size.height, self.view.frame.size.width, self.view.frame.size.height - bottomView.frame.size.height);
+	webView.UIDelegate = self;
+    webView.navigationDelegate = self;
 
 	ai = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
 	ai.center = CGPointMake(webView.bounds.size.width/2, (webView.bounds.size.height/2));
 	ai.autoresizingMask = (UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin);
 	[webView addSubview:ai];
+    
+    NSArray *arrangedSubviews;
+    UIView *topSpace = [UIView new];
+    topSpace.backgroundColor = bottomView.backgroundColor;
+    
+    UIView *bottomSpace = [UIView new];
+    bottomSpace.backgroundColor = bottomView.backgroundColor;
+    
+    if (navigationAtTop)
+    {
+        arrangedSubviews = @[topSpace, bottomView, webView];
+    } else {
+        arrangedSubviews = @[topSpace, webView, bottomView, bottomSpace];
+    }
+    
+    UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:arrangedSubviews];
+    stack.axis = UILayoutConstraintAxisVertical;
+    [self.view addSubview:stack];
+    stack.translatesAutoresizingMaskIntoConstraints = NO;
+    [bottomView.heightAnchor constraintEqualToConstant:44].active = YES;
+    
+    [topSpace.heightAnchor constraintEqualToAnchor:self.topLayoutGuide.heightAnchor].active = YES;
+    
+    if (bottomSpace.superview)
+    {
+        [bottomSpace.heightAnchor constraintEqualToAnchor:self.bottomLayoutGuide.heightAnchor].active = YES;
+    }
+    
+    [stack.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor].active = YES;
+    [stack.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor].active = YES;
+    [stack.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
+    [stack.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
+    
 }
 
 - (NSData*) getDataForAttachmentPath:(NSString*)path
@@ -334,8 +359,19 @@ alpha:			1.0 \
 		if (encodeURL)
 			urlString = [[options objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	}
-
-	[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (!url.isFileURL)
+    {
+        [webView loadRequest:[NSURLRequest requestWithURL:url]];
+    }
+    else
+    {
+        NSURL *root = [NSBundle mainBundle].resourceURL;
+        url = [root URLByAppendingPathComponent:url.path];
+        NSAssert([[NSFileManager defaultManager] fileExistsAtPath:url.path], @"");
+        [webView loadFileURL:url allowingReadAccessToURL:[url URLByDeletingLastPathComponent]];
+    }
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -347,27 +383,32 @@ alpha:			1.0 \
 #pragma mark -
 #pragma mark Webview Delegate
 
-- (bool) webView:(UIWebView *)_webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
-{
-	forwardButton.enabled = _webView.canGoForward;
-	backButton.enabled = _webView.canGoBack;
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
 
-	return true;
+	forwardButton.enabled = webView.canGoForward;
+	backButton.enabled = webView.canGoBack;
+
+    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
-- (void)webViewDidStartLoad:(UIWebView *)webView
-{
-	[ai startAnimating];
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
+    [ai startAnimating];
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView
-{
-	[ai stopAnimating];
+- (void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation {
+    [ai startAnimating];
 }
 
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
-{
-	[ai stopAnimating];
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    [ai stopAnimating];
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [ai stopAnimating];
+}
+
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [ai stopAnimating];
 }
 
 #pragma mark -

@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "name": "com.mwaysolutions.cordova.webviewplugin",
     "main": "www/webview-plugin.js",
     "cordova_name": "InAppBrowser",
