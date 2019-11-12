@@ -367,8 +367,6 @@ alpha:			1.0 \
     }
     else
     {
-        NSURL *root = [NSBundle mainBundle].resourceURL;
-        url = [root URLByAppendingPathComponent:url.path];
         NSAssert([[NSFileManager defaultManager] fileExistsAtPath:url.path], @"");
         [webView loadFileURL:url allowingReadAccessToURL:[url URLByDeletingLastPathComponent]];
     }
